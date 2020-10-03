@@ -1,32 +1,55 @@
 import React, {useState} from 'react';
-import { View, TextInput, StyleSheet, OpaqueColorValue, Button, AsyncStorage } from 'react-native';
+import { View, TextInput, StyleSheet, Button} from 'react-native';
 import Tema from '../constantes/Tema';
+import CaptureImage from '../components/CapturarImagem';
+import { useDispatch } from 'react-redux';
+import * as contactActions from '../store/contact-actions';
 
 const CadastroDeContatos = (props) => {
+    const dispatch = useDispatch();
+    const [name, setName] = useState('');
+    const [phone, setPhone] = useState('');
+    const [imageURI, setImageURI] = useState();
 
-    const [contato, setContato] = useState({ nome: '', telefone: '' });
-    const capturarNome = (nome) => {
-      let c = { ...contato, nome }
-      setContato(c);
-    }
-    const capturarTelefone = (telefone) => {
-      let c = { ...contato, telefone }
-      setContato(c);
+    const addContact = () => {
+        dispatch(contactActions.addContact(name, phone, imageURI));
+
+        setName('');
+        setPhone('');
+
+        props.navigation.goBack();
+
+        props.navigation.goBack();
+    };
+
+    const captureName = (name) => {
+        setName(name);
+    };
+
+    const capturarPhone = (phone) => {
+        setPhone(phone);
+    };
+
+    const pictureTaken = image => {
+        setImageURI(image);
     }
 
     return (
         <View style={styles.mainView}>
+            <CaptureImage
+                onPictureTaken={pictureTaken}
+            />
             <TextInput
                 placeholder='Nome'
                 style={styles.textInput}
-                onChangeText={capturarNome}
+                onChangeText={captureName}
             />
             <TextInput
                 placeholder='Telefone'
                 style={styles.textInput}
-                onChangeText={capturarTelefone}
+                onChangeText={capturarPhone}
             />
-            <Button title='Adicionar' style={"#FFC0CB"} onPress={() => props.onAdicionarContato(contato)}/>
+            <Button title='Adicionar' style={styles.addButton} onPress={addContact}/>
         </View>
     );
 };

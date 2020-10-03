@@ -2,37 +2,32 @@ import React, {useState} from 'react';
 import { View, StyleSheet, Platform } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import {HeaderButtons, Item} from 'react-navigation-header-buttons';
-import BotaoHeader from '../componentes/BotaoHeader';
+import HeaderBtn from '../components/BotaoHeader';
+import { useSelector } from 'react-redux';
+import ContactItem from '../components/ContatoItem';
+import * as contactActions from '../store/contact-actions';
+import { useDispatch } from 'react-redux';
 
 const ListaDeContatos = (props) => {
-    const [contatos, setContatos] = useState([]);
-    const [contadorContatos, setContadorContatos] = useState(0);
+    const dispatch = useDispatch();
 
-    const addContato = (contato) => {
-      setContatos(contatos => {
-        setContadorContatos(contadorContatos + 2);
+    const contacts = useSelector(state => state.contacts.contacts);
 
-        return [...contatos, {key: contadorContatos.toString(), value: contato}];
-      });
-    }
-
-    const removeItem = (key) => {
-      setContatos(contatos => {
-        return contatos.filter((contatos) => {
-          return contatos.key !== key;
-        })
-      });
+    const removeItem = id => {
+      dispatch(contactActions.deleteContact(id));
     }
 
     return (
         <View style={styles.telaPrincipal}>
             <FlatList
-                data={contatos}
-                renderItem={(contatos) => (
-                    <ContatoItem
-                    i={contato.item.key} 
-                    contato={contato.item.value} 
-                    onRemoverContato={removeItem}
+                data={contacts}
+                renderItem={(contact) => (
+                    <ContactItem
+                    id={contact.item.id}
+                        image={contact.item.imageURI}
+                        name={contact.item.name}
+                        phone={contact.item.phone}
+                        onRemoveItem={removeItem}
                     />
                 )
             } />
@@ -45,12 +40,12 @@ ListaDeContatos.navigationOptions = navData => {
         headerTitle: "Lista de contatos",
         headerRight: () => {
             return (
-                <HeaderButtons HeaderButtonComponent={BotaoHeader}>
+                <HeaderButtons HeaderButtonComponent={HeaderBtn}>
                     <Item
                         title="Adicionar"
                         iconName={Platform.OS === 'android' ? 'md-add' : 'ios-add' }
                         onPress={() => {
-                            navData.navigation.navigate('NovoContato')
+                            navData.navigation.navigate('CadContato')
                         }}
                     />
                 </HeaderButtons>
@@ -62,9 +57,7 @@ ListaDeContatos.navigationOptions = navData => {
 const styles = StyleSheet.create({
     telaPrincipal: {
         backgroundColor: '#fff',
-        padding: 50,
-        textAlign: 'center'
-
+        padding: 50
       },
 });
 
